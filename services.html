@@ -155,12 +155,15 @@
 
             const filteredData = allData.filter(function(row, index) {
                 if (index === 0) return false; // تجاهل الصف الأول
-                const nameMatch = row[1] && row[1].toLowerCase().includes(nameQuery);
-                const idMatch = row[2] && row[2].includes(idQuery);
+
+                // تحقق من تطابق الاسم أو الرقم القومي
+                const nameMatch = row[1] && row[1].toLowerCase().includes(nameQuery); // البحث بالاسم
+                const idMatch = row[2] && row[2].includes(idQuery); // البحث بالرقم القومي
+
                 return nameMatch || idMatch;
             });
 
-            displayData(filteredData);
+            displayData(filteredData); // عرض النتائج المصفاة
         }
     </script>
 
