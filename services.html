@@ -92,7 +92,7 @@
     <div class="container">
         <h1>بحث المعاملات</h1>
         <div class="search-container">
-            <input type="text" id="searchName" placeholder="ابحث بالاسم" oninput="searchData()">
+            <!-- حذف خانة الاسم وترك خانة الرقم القومي فقط -->
             <input type="text" id="searchId" placeholder="ابحث بالرقم القومي" oninput="searchData()">
             <button onclick="searchData()">بحث</button>
         </div>
@@ -151,18 +151,16 @@
 
         // البحث في البيانات
         function searchData() {
-            const nameQuery = document.getElementById("searchName").value.toLowerCase();
             const idQuery = document.getElementById("searchId").value;
 
-            // تصفية البيانات بناءً على الاسم أو الرقم القومي
+            // تصفية البيانات بناءً على الرقم القومي فقط
             const filteredData = allData.filter(function(row, index) {
                 if (index === 0) return false; // تجاهل الصف الأول (العناوين)
 
-                // تحقق من تطابق الاسم أو الرقم القومي جزئيًا
-                const nameMatch = row[1] && row[1].toLowerCase().includes(nameQuery); // البحث بالاسم
+                // تحقق من تطابق الرقم القومي جزئيًا
                 const idMatch = row[2] && row[2].includes(idQuery); // البحث بالرقم القومي
 
-                return nameMatch || idMatch; // عرض السجل إذا تطابق مع الاسم أو الرقم القومي
+                return idMatch; // عرض السجل إذا تطابق مع الرقم القومي
             });
 
             // عرض البيانات المطابقة فقط
