@@ -125,7 +125,6 @@
                 Papa.parse(csvData, {
                     complete: function(results) {
                         allData = results.data;
-                        displayData(allData); // عرض البيانات بالكامل عند التحميل
                     }
                 });
             })
@@ -169,7 +168,7 @@
                 // إذا لم يكن هناك تطابق، إظهار رسالة لا توجد بيانات
                 displayNoResults();
             } else {
-                displayData(filteredData);
+                displayData(filteredData); // عرض السجلات المطابقة فقط
             }
         }
 
