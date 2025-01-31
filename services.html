@@ -125,7 +125,7 @@
                 Papa.parse(csvData, {
                     complete: function(results) {
                         allData = results.data;
-                        displayData(allData);
+                        displayData(allData); // عرض البيانات بالكامل عند التحميل
                     }
                 });
             })
@@ -153,20 +153,15 @@
             const nameQuery = document.getElementById("searchName").value.toLowerCase();
             const idQuery = document.getElementById("searchId").value;
 
-            // إذا لم يتم إدخال شيء في حقل البحث، عرض جميع السجلات
-            if (!nameQuery && !idQuery) {
-                displayData(allData);
-                return;
-            }
-
+            // إذا لم يتم إدخال شيء في حقل البحث، إخفاء جميع السجلات
             const filteredData = allData.filter(function(row, index) {
-                if (index === 0) return false; // تجاهل الصف الأول
+                if (index === 0) return false; // تجاهل الصف الأول (العناوين)
 
-                // تحقق من تطابق الاسم أو الرقم القومي
+                // تحقق من تطابق الاسم أو الرقم القومي جزئيًا
                 const nameMatch = row[1] && row[1].toLowerCase().includes(nameQuery); // البحث بالاسم
                 const idMatch = row[2] && row[2].includes(idQuery); // البحث بالرقم القومي
 
-                return nameMatch || idMatch;
+                return nameMatch || idMatch; // عرض السجل إذا تطابق مع الاسم أو الرقم القومي
             });
 
             // عرض البيانات المطابقة فقط
