@@ -153,7 +153,7 @@
             const nameQuery = document.getElementById("searchName").value.toLowerCase();
             const idQuery = document.getElementById("searchId").value;
 
-            // إذا لم يتم إدخال شيء في حقل البحث، إخفاء جميع السجلات
+            // تصفية البيانات بناءً على الاسم أو الرقم القومي
             const filteredData = allData.filter(function(row, index) {
                 if (index === 0) return false; // تجاهل الصف الأول (العناوين)
 
@@ -165,7 +165,18 @@
             });
 
             // عرض البيانات المطابقة فقط
-            displayData(filteredData);
+            if (filteredData.length === 0) {
+                // إذا لم يكن هناك تطابق، إظهار رسالة لا توجد بيانات
+                displayNoResults();
+            } else {
+                displayData(filteredData);
+            }
+        }
+
+        // عرض رسالة "لا توجد بيانات" إذا لم يتم العثور على نتائج
+        function displayNoResults() {
+            const tableBody = document.querySelector("#dataTable tbody");
+            tableBody.innerHTML = "<tr><td colspan='9' style='text-align: center;'>لا توجد بيانات مطابقة للبحث</td></tr>";
         }
     </script>
 
