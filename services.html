@@ -163,7 +163,21 @@
                 return nameMatch || idMatch;
             });
 
-            displayData(filteredData); // عرض النتائج المصفاة
+            // إخفاء الصفوف غير المطابقة
+            const rows = document.querySelectorAll("#dataTable tbody tr");
+            rows.forEach((row, index) => {
+                if (index > 0) { // تجاهل الصف الأول (العناوين)
+                    const rowData = filteredData[index - 1];
+                    if (rowData) {
+                        row.style.display = "table-row"; // عرض السطر
+                    } else {
+                        row.style.display = "none"; // إخفاء السطر
+                    }
+                }
+            });
+
+            // عرض البيانات المطابقة فقط
+            displayData(filteredData);
         }
     </script>
 
