@@ -1,60 +1,168 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>إحصائية الطلبات</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
-<body>
-    <div style="width: 50%; margin: auto;">
-        <canvas id="ordersChart"></canvas>
-    </div>
-    <script>
-        async function fetchData() {
-            try {
-                const response = await axios.get('http://localhost:3000/api/orders');
-                const data = response.data;
-
-                const ctx = document.getElementById('ordersChart').getContext('2d');
-                const ordersChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['الطلبات الجارية', 'الطلبات المنتهية', 'الطلبات المتبقية'],
-                        datasets: [{
-                            label: 'عدد الطلبات',
-                            data: [data.ongoing, data.completed, data.pending],
-                            backgroundColor: [
-                                'rgba(255, 206, 86, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(255, 99, 132, 0.2)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(255, 99, 132, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            },
-                            title: {
-                                display: true,
-                                text: 'توزيع الطلبات'
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بحث المعاملات</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
 
-        fetchData();
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-bottom: 30px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 40%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>بحث المعاملات</h1>
+        <div class="search-container">
+            <input type="text" id="searchName" placeholder="ابحث بالاسم" oninput="searchData()">
+            <input type="text" id="searchId" placeholder="ابحث بالرقم القومي" oninput="searchData()">
+            <button onclick="searchData()">بحث</button>
+        </div>
+
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>مسلسل</th>
+                    <th>العميل</th>
+                    <th>الرقم القومي</th>
+                    <th>رقم المعاملة</th>
+                    <th>تاريخ تقديم المعاملة</th>
+                    <th>رقم التليفون</th>
+                    <th>حالة المعاملة</th>
+                    <th>الإجراء المنتظر</th>
+                    <th>عنوان المعاملة</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/1o6iKgxymW2y6wSQmcxrOca-_x2yqYK-9AOvXOQErxeU/export?format=csv';
+
+        let allData = [];
+
+        // تحميل البيانات من الملف CSV
+        fetch(csvUrl)
+            .then(response => response.text())
+            .then(csvData => {
+                Papa.parse(csvData, {
+                    complete: function(results) {
+                        allData = results.data;
+                        displayData(allData);
+                    }
+                });
+            })
+            .catch(error => console.error("خطأ في تحميل البيانات:", error));
+
+        // عرض البيانات في الجدول
+        function displayData(data) {
+            const tableBody = document.querySelector("#dataTable tbody");
+            tableBody.innerHTML = ''; // مسح المحتوى القديم
+            data.forEach(function(row, index) {
+                if (index > 0) { // تجاهل الصف الأول (العناوين)
+                    const tr = document.createElement("tr");
+                    row.forEach(function(cell) {
+                        const td = document.createElement("td");
+                        td.textContent = cell;
+                        tr.appendChild(td);
+                    });
+                    tableBody.appendChild(tr);
+                }
+            });
+        }
+
+        // البحث في البيانات
+        function searchData() {
+            const nameQuery = document.getElementById("searchName").value.toLowerCase();
+            const idQuery = document.getElementById("searchId").value;
+
+            const filteredData = allData.filter(function(row, index) {
+                if (index === 0) return false; // تجاهل الصف الأول
+                const nameMatch = row[1] && row[1].toLowerCase().includes(nameQuery);
+                const idMatch = row[2] && row[2].includes(idQuery);
+                return nameMatch || idMatch;
+            });
+
+            displayData(filteredData);
+        }
     </script>
+
 </body>
 </html>
