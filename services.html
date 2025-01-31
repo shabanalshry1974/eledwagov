@@ -12,7 +12,7 @@
             color: #333;
             margin: 0;
             padding: 0;
-            direction: rtl; /* اتجاه النص من اليمين لليسار */
+            direction: rtl;
         }
 
         .container {
@@ -63,13 +63,13 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            direction: rtl; /* اتجاه النص داخل الجدول من اليمين لليسار */
+            direction: rtl;
         }
 
         table, th, td {
             border: 1px solid #ddd;
             padding: 12px;
-            text-align: right; /* محاذاة النص لليمين */
+            text-align: right;
             font-size: 14px;
         }
 
@@ -92,7 +92,6 @@
     <div class="container">
         <h1>بحث المعاملات</h1>
         <div class="search-container">
-            <!-- حذف خانة الاسم وترك خانة الرقم القومي فقط -->
             <input type="text" id="searchId" placeholder="ابحث بالرقم القومي" oninput="searchData()">
             <button onclick="searchData()">بحث</button>
         </div>
@@ -151,14 +150,14 @@
 
         // البحث في البيانات
         function searchData() {
-            const idQuery = document.getElementById("searchId").value;
+            const idQuery = document.getElementById("searchId").value.trim(); // إزالة المسافات الزائدة
 
             // تصفية البيانات بناءً على الرقم القومي فقط
             const filteredData = allData.filter(function(row, index) {
                 if (index === 0) return false; // تجاهل الصف الأول (العناوين)
 
-                // تحقق من تطابق الرقم القومي جزئيًا
-                const idMatch = row[2] && row[2].includes(idQuery); // البحث بالرقم القومي
+                // تحقق من تطابق الرقم القومي جزئيًا أو دقيقًا
+                const idMatch = row[2] && row[2].trim().includes(idQuery); // البحث بالرقم القومي مع إزالة المسافات
 
                 return idMatch; // عرض السجل إذا تطابق مع الرقم القومي
             });
