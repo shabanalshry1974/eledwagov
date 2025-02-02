@@ -3,100 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بحث المعاملات</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <title>البحث في البيانات</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f7f7f7;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            direction: rtl;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 40px auto;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
             padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
-
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-            margin-bottom: 30px;
-        }
-
-        .search-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        input[type="text"] {
+        input {
+            width: 80%;
             padding: 10px;
-            width: 40%;
-            border: 1px solid #ccc;
+            margin: 10px;
+            border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 16px;
         }
-
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            direction: rtl;
         }
-
-        table, th, td {
+        th, td {
+            padding: 10px;
             border: 1px solid #ddd;
-            padding: 12px;
-            text-align: right;
-            font-size: 14px;
+            text-align: center;
         }
-
         th {
-            background-color: #4CAF50;
+            background-color: #28a745;
             color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        tr:hover {
-            background-color: #ddd;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h1>بحث المعاملات</h1>
-        <div class="search-container">
-            <input type="text" id="searchId" placeholder="ابحث بالرقم القومي" oninput="searchData()">
-            <button onclick="searchData()">بحث</button>
-        </div>
-
-        <table id="dataTable">
+        <h2>البحث في البيانات</h2>
+        <input type="text" id="searchInput" placeholder="ابحث باسم العميل أو الرقم القومي..." onkeyup="searchData()">
+        <table>
             <thead>
                 <tr>
                     <th>مسلسل</th>
@@ -110,73 +61,48 @@
                     <th>عنوان المعاملة</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody id="dataBody">
+                <!-- سيتم تحميل البيانات هنا -->
+            </tbody>
         </table>
     </div>
 
     <script>
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/1o6iKgxymW2y6wSQmcxrOca-_x2yqYK-9AOvXOQErxeU/export?format=csv';
-
-        let allData = [];
-
-        // تحميل البيانات من الملف CSV
-        fetch(csvUrl)
-            .then(response => response.text())
-            .then(csvData => {
-                Papa.parse(csvData, {
-                    complete: function(results) {
-                        allData = results.data;
-                    }
-                });
-            })
-            .catch(error => console.error("خطأ في تحميل البيانات:", error));
-
-        // عرض البيانات في الجدول
-        function displayData(data) {
-            const tableBody = document.querySelector("#dataTable tbody");
-            tableBody.innerHTML = ''; // مسح المحتوى القديم
-            data.forEach(function(row, index) {
-                if (index > 0) { // تجاهل الصف الأول (العناوين)
-                    const tr = document.createElement("tr");
-                    row.forEach(function(cell) {
-                        const td = document.createElement("td");
-                        td.textContent = cell;
-                        tr.appendChild(td);
-                    });
-                    tableBody.appendChild(tr);
-                }
+        async function loadGoogleSheet() {
+            const sheetURL = 'https://docs.google.com/spreadsheets/d/1o6iKgxymW2y6wSQmcxrOca-_x2yqYK-9AOvXOQErxeU/gviz/tq?tqx=out:json';
+            const response = await fetch(sheetURL);
+            const text = await response.text();
+            const json = JSON.parse(text.substring(47, text.length - 2));
+            const rows = json.table.rows;
+            const tableBody = document.getElementById('dataBody');
+            tableBody.innerHTML = '';
+            rows.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${row.c[0]?.v || ''}</td>
+                    <td>${row.c[1]?.v || ''}</td>
+                    <td>${row.c[2]?.v || ''}</td>
+                    <td>${row.c[3]?.v || ''}</td>
+                    <td>${row.c[4]?.v || ''}</td>
+                    <td>${row.c[5]?.v || ''}</td>
+                    <td>${row.c[6]?.v || ''}</td>
+                    <td>${row.c[7]?.v || ''}</td>
+                `;
+                tableBody.appendChild(tr);
             });
         }
 
-        // البحث في البيانات
         function searchData() {
-            const idQuery = document.getElementById("searchId").value.trim(); // إزالة المسافات الزائدة
-
-            // تصفية البيانات بناءً على الرقم القومي فقط
-            const filteredData = allData.filter(function(row, index) {
-                if (index === 0) return false; // تجاهل الصف الأول (العناوين)
-
-                // تحقق من تطابق الرقم القومي جزئيًا أو دقيقًا
-                const idMatch = row[2] && row[2].trim().includes(idQuery); // البحث بالرقم القومي مع إزالة المسافات
-
-                return idMatch; // عرض السجل إذا تطابق مع الرقم القومي
+            const filter = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#dataBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
             });
-
-            // عرض البيانات المطابقة فقط
-            if (filteredData.length === 0) {
-                // إذا لم يكن هناك تطابق، إظهار رسالة لا توجد بيانات
-                displayNoResults();
-            } else {
-                displayData(filteredData); // عرض السجلات المطابقة فقط
-            }
         }
 
-        // عرض رسالة "لا توجد بيانات" إذا لم يتم العثور على نتائج
-        function displayNoResults() {
-            const tableBody = document.querySelector("#dataTable tbody");
-            tableBody.innerHTML = "<tr><td colspan='9' style='text-align: center;'>لا توجد بيانات مطابقة للبحث</td></tr>";
-        }
+        window.onload = loadGoogleSheet;
     </script>
-
 </body>
 </html>
