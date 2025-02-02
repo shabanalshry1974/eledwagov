@@ -31,6 +31,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            display: none;
         }
         th, td {
             padding: 10px;
@@ -47,7 +48,7 @@
     <div class="container">
         <h2>البحث في البيانات</h2>
         <input type="text" id="searchInput" placeholder="ابحث باسم العميل أو الرقم القومي..." onkeyup="searchData()">
-        <table>
+        <table id="dataTable">
             <thead>
                 <tr>
                     <th>مسلسل</th>
@@ -68,38 +69,57 @@
     </div>
 
     <script>
+        let allData = [];
         async function loadGoogleSheet() {
             const sheetURL = 'https://docs.google.com/spreadsheets/d/1o6iKgxymW2y6wSQmcxrOca-_x2yqYK-9AOvXOQErxeU/gviz/tq?tqx=out:json';
             const response = await fetch(sheetURL);
             const text = await response.text();
             const json = JSON.parse(text.substring(47, text.length - 2));
-            const rows = json.table.rows;
-            const tableBody = document.getElementById('dataBody');
-            tableBody.innerHTML = '';
-            rows.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${row.c[0]?.v || ''}</td>
-                    <td>${row.c[1]?.v || ''}</td>
-                    <td>${row.c[2]?.v || ''}</td>
-                    <td>${row.c[3]?.v || ''}</td>
-                    <td>${row.c[4]?.v || ''}</td>
-                    <td>${row.c[5]?.v || ''}</td>
-                    <td>${row.c[6]?.v || ''}</td>
-                    <td>${row.c[7]?.v || ''}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
+            allData = json.table.rows.map((row, index) => ({
+                index: index + 1,
+                client: row.c[0]?.v || '',
+                nationalID: row.c[1]?.v || '',
+                transactionID: row.c[2]?.v || '',
+                submissionDate: row.c[3]?.v || '',
+                phone: row.c[4]?.v || '',
+                status: row.c[5]?.v || '',
+                action: row.c[6]?.v || '',
+                address: row.c[7]?.v || ''
+            }));
         }
 
         function searchData() {
             const filter = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#dataBody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
-            });
+            const table = document.getElementById('dataTable');
+            const tableBody = document.getElementById('dataBody');
+            tableBody.innerHTML = '';
+            
+            if (filter === '') {
+                table.style.display = 'none';
+                return;
+            }
+            
+            const filteredData = allData.filter(row => row.client.toLowerCase().includes(filter) || row.nationalID.includes(filter));
+            if (filteredData.length > 0) {
+                table.style.display = 'table';
+                filteredData.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.index}</td>
+                        <td>${row.client}</td>
+                        <td>${row.nationalID}</td>
+                        <td>${row.transactionID}</td>
+                        <td>${row.submissionDate}</td>
+                        <td>${row.phone}</td>
+                        <td>${row.status}</td>
+                        <td>${row.action}</td>
+                        <td>${row.address}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                table.style.display = 'none';
+            }
         }
 
         window.onload = loadGoogleSheet;
