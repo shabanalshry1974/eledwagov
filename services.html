@@ -47,7 +47,7 @@
 <body>
     <div class="container">
         <h2>البحث في البيانات</h2>
-        <input type="text" id="searchInput" placeholder="ابحث باسم العميل أو الرقم القومي..." onkeyup="searchData()">
+        <input type="text" id="searchInput" placeholder="ابحث باسم العميل أو الرقم القومي..." oninput="searchData()">
         <table id="dataTable">
             <thead>
                 <tr>
@@ -122,7 +122,9 @@
             }
         }
 
-        window.onload = loadGoogleSheet;
+        window.onload = async () => {
+            await loadGoogleSheet();
+        };
     </script>
 </body>
 </html>
