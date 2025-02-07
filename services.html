@@ -29,14 +29,11 @@
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        .status-pending { color: red; }
-        .status-approved { color: green; }
-        .status-processing { color: orange; }
     </style>
 </head>
 <body>
     <h2>بحث عن العميل</h2>
-    <input type="text" id="searchInput" placeholder="ادخل اسم العميل...">
+    <input type="text" id="searchInput" placeholder="ادخل اسم العميل أو الرقم القومي...">
     <button onclick="searchCustomer()">بحث</button>
     <table id="dataTable">
         <thead>
@@ -50,33 +47,35 @@
     </table>
 
     <script>
-        const csvUrl = "https://raw.githubusercontent.com/shabanalshry1974/eledwagov/main/test.csv"; // رابط ملف CSV على GitHub
+        const csvUrl = "https://raw.githubusercontent.com/shabanalshry1974/eledwagov/main/test.csv";
         let csvData = [];
         
-        // تحميل البيانات من GitHub
         fetch(csvUrl)
             .then(response => response.text())
             .then(csvText => {
                 Papa.parse(csvText, {
-                    header: false, // عدم استخدام الصف الأول كعناوين
-                    skipEmptyLines: true, // تخطي الأسطر الفارغة
+                    header: false,
+                    skipEmptyLines: true,
                     complete: function(results) {
                         csvData = results.data;
-                        console.log(csvData); // عرض البيانات في الكونسول لفحصها
+                        console.log(csvData);
                     }
                 });
             })
             .catch(error => console.error("خطأ في تحميل الملف: ", error));
         
         function searchCustomer() {
-            let searchValue = document.getElementById('searchInput').value.trim();
+            let searchValue = document.getElementById('searchInput').value.trim().toLowerCase();
             let tbody = document.querySelector('#dataTable tbody');
             tbody.innerHTML = '';
             
             csvData.forEach(row => {
-                if (row[1] && row[1].includes(searchValue)) { // البحث في العمود B (اسم العميل)
+                let name = row[1] ? row[1].trim().toLowerCase() : "";
+                let nationalId = row[2] ? row[2].trim() : "";
+                
+                if (name.includes(searchValue) || nationalId.includes(searchValue)) {
                     let tr = document.createElement('tr');
-                    [0, 1, 2].forEach(index => { // عرض الأعمدة A (مسلسل), B (اسم العميل), C (الرقم القومي)
+                    [0, 1, 2].forEach(index => {
                         let td = document.createElement('td');
                         td.textContent = row[index] || "";
                         tr.appendChild(td);
