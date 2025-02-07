@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Tahoma', sans-serif;
             margin: 20px;
             direction: rtl;
             text-align: right;
@@ -21,6 +21,7 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: right;
+            white-space: nowrap;
         }
         th {
             background-color: #4CAF50;
@@ -47,6 +48,12 @@
                 <th>مسلسل</th>
                 <th>العميل</th>
                 <th>الرقم القومي</th>
+                <th>رقم المعاملة</th>
+                <th>تاريخ تقديم المعاملة</th>
+                <th>رقم التليفون</th>
+                <th>حالة المعاملة</th>
+                <th>الإجراء المنتظر</th>
+                <th>عنوان المعاملة</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -62,6 +69,7 @@
             .then(response => response.text())
             .then(csvText => {
                 Papa.parse(csvText, {
+                    encoding: "UTF-8", // التأكد من دعم اللغة العربية
                     header: false,
                     skipEmptyLines: true,
                     complete: function(results) {
@@ -94,11 +102,11 @@
                 if (name.includes(searchValue) || nationalId.includes(searchValue)) {
                     found = true;
                     let tr = document.createElement('tr');
-                    [0, 1, 2].forEach(index => {
+                    for (let i = 0; i < row.length; i++) {
                         let td = document.createElement('td');
-                        td.textContent = row[index] || "";
+                        td.textContent = row[i] || "";
                         tr.appendChild(td);
-                    });
+                    }
                     tbody.appendChild(tr);
                 }
             });
@@ -106,7 +114,7 @@
             if (!found) {
                 let tr = document.createElement('tr');
                 let td = document.createElement('td');
-                td.colSpan = 3;
+                td.colSpan = 9;
                 td.textContent = "لا توجد نتائج مطابقة";
                 tr.appendChild(td);
                 tbody.appendChild(tr);
