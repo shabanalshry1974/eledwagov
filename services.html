@@ -69,7 +69,7 @@
             .then(response => response.text())
             .then(csvText => {
                 Papa.parse(csvText, {
-                    encoding: "UTF-8", // التأكد من دعم اللغة العربية
+                    encoding: "UTF-8", // دعم اللغة العربية
                     header: false,
                     skipEmptyLines: true,
                     complete: function(results) {
@@ -102,11 +102,11 @@
                 if (name.includes(searchValue) || nationalId.includes(searchValue)) {
                     found = true;
                     let tr = document.createElement('tr');
-                    for (let i = 0; i < row.length; i++) {
+                    row.forEach(cell => {
                         let td = document.createElement('td');
-                        td.textContent = row[i] || "";
+                        td.textContent = cell || "";
                         tr.appendChild(td);
-                    }
+                    });
                     tbody.appendChild(tr);
                 }
             });
