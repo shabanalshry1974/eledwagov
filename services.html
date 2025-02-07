@@ -66,10 +66,11 @@
         document.getElementById('loading').style.display = 'block';
         
         fetch(csvUrl)
-            .then(response => response.text())
-            .then(csvText => {
-                Papa.parse(csvText, {
-                    encoding: "UTF-8", // دعم اللغة العربية
+            .then(response => response.arrayBuffer()) // تحميل الملف كـ ArrayBuffer
+            .then(buffer => {
+                let text = new TextDecoder('utf-8').decode(buffer); // فك ترميز النص
+                Papa.parse(text, {
+                    encoding: "UTF-8",
                     header: false,
                     skipEmptyLines: true,
                     complete: function(results) {
