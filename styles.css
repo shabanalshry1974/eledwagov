@@ -83,7 +83,8 @@ header .language .lang-btn:hover {
 
 /* تنسيق القسم الرئيسي */
 .hero {
-    background: url('/eledwagov/images/1.jpg') no-repeat center center/cover;
+   background: url('https://raw.githubusercontent.com/shabanalshry1974/eledwagov/main/images/1.jpg') no-repeat center center/cover;
+
     color: #fff;
     padding: 100px 0;
     text-align: center;
