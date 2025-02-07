@@ -56,7 +56,7 @@
     </table>
 
     <script>
-        const csvUrl = "https://raw.githubusercontent.com/shabanalshry1974/eledwagov/main/test.csv"; // رابط GitHub الخاص بك
+        const csvUrl = "https://raw.githubusercontent.com/shabanalshry1974/eledwagov/main/test.csv"; // رابط ملف CSV على GitHub
         let csvData = [];
         
         // تحميل البيانات من GitHub
@@ -64,11 +64,15 @@
             .then(response => response.text())
             .then(csvText => {
                 Papa.parse(csvText, {
+                    header: true, // استخدام الصف الأول كعناوين للأعمدة
+                    skipEmptyLines: true, // تخطي الأسطر الفارغة
                     complete: function(results) {
                         csvData = results.data;
+                        console.log(csvData); // عرض البيانات في الكونسول لفحصها
                     }
                 });
-            });
+            })
+            .catch(error => console.error("خطأ في تحميل الملف: ", error));
         
         function searchCustomer() {
             let searchValue = document.getElementById('searchInput').value.trim();
@@ -76,9 +80,9 @@
             tbody.innerHTML = '';
             
             csvData.forEach(row => {
-                if (row[1] && row[1].includes(searchValue)) { // البحث عن العميل في العمود الثاني
+                if (row["العميل"] && row["العميل"].includes(searchValue)) { // البحث عن العميل في العمود "العميل"
                     let tr = document.createElement('tr');
-                    row.forEach((cell, index) => {
+                    Object.values(row).forEach((cell, index) => {
                         let td = document.createElement('td');
                         td.textContent = cell;
                         if (index === 6) td.classList.add(getStatusClass(cell));
