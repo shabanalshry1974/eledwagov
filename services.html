@@ -44,12 +44,6 @@
                 <th>مسلسل</th>
                 <th>العميل</th>
                 <th>الرقم القومي</th>
-                <th>رقم المعاملة</th>
-                <th>تاريخ تقديم المعاملة</th>
-                <th>رقم التليفون</th>
-                <th>حالة المعاملة</th>
-                <th>الإجراء المنتظر</th>
-                <th>عنوان المعاملة</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -64,7 +58,7 @@
             .then(response => response.text())
             .then(csvText => {
                 Papa.parse(csvText, {
-                    header: true, // استخدام الصف الأول كعناوين للأعمدة
+                    header: false, // عدم استخدام الصف الأول كعناوين
                     skipEmptyLines: true, // تخطي الأسطر الفارغة
                     complete: function(results) {
                         csvData = results.data;
@@ -80,24 +74,16 @@
             tbody.innerHTML = '';
             
             csvData.forEach(row => {
-                if (row["العميل"] && row["العميل"].includes(searchValue)) { // البحث عن العميل في العمود "العميل"
+                if (row[1] && row[1].includes(searchValue)) { // البحث في العمود B (اسم العميل)
                     let tr = document.createElement('tr');
-                    Object.values(row).forEach((cell, index) => {
+                    [0, 1, 2].forEach(index => { // عرض الأعمدة A (مسلسل), B (اسم العميل), C (الرقم القومي)
                         let td = document.createElement('td');
-                        td.textContent = cell;
-                        if (index === 6) td.classList.add(getStatusClass(cell));
+                        td.textContent = row[index] || "";
                         tr.appendChild(td);
                     });
                     tbody.appendChild(tr);
                 }
             });
-        }
-        
-        function getStatusClass(status) {
-            if (status.includes('معلق')) return 'status-pending';
-            if (status.includes('موافق')) return 'status-approved';
-            if (status.includes('تحت المعالجة')) return 'status-processing';
-            return '';
         }
     </script>
 </body>
