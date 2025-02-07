@@ -29,12 +29,18 @@
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+        .loading {
+            display: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <h2>بحث عن العميل</h2>
     <input type="text" id="searchInput" placeholder="ادخل اسم العميل أو الرقم القومي...">
     <button onclick="searchCustomer()">بحث</button>
+    <div class="loading" id="loading">جاري التحميل...</div>
     <table id="dataTable">
         <thead>
             <tr>
@@ -50,6 +56,8 @@
         const csvUrl = "https://raw.githubusercontent.com/shabanalshry1974/eledwagov/main/test.csv";
         let csvData = [];
         
+        document.getElementById('loading').style.display = 'block';
+        
         fetch(csvUrl)
             .then(response => response.text())
             .then(csvText => {
@@ -59,21 +67,32 @@
                     complete: function(results) {
                         csvData = results.data;
                         console.log(csvData);
+                        document.getElementById('loading').style.display = 'none';
                     }
                 });
             })
-            .catch(error => console.error("خطأ في تحميل الملف: ", error));
+            .catch(error => {
+                console.error("خطأ في تحميل الملف: ", error);
+                document.getElementById('loading').style.display = 'none';
+            });
         
         function searchCustomer() {
             let searchValue = document.getElementById('searchInput').value.trim().toLowerCase();
             let tbody = document.querySelector('#dataTable tbody');
             tbody.innerHTML = '';
             
+            if (!searchValue) {
+                alert("يرجى إدخال قيمة للبحث");
+                return;
+            }
+            
+            let found = false;
             csvData.forEach(row => {
                 let name = row[1] ? row[1].trim().toLowerCase() : "";
                 let nationalId = row[2] ? row[2].trim() : "";
                 
                 if (name.includes(searchValue) || nationalId.includes(searchValue)) {
+                    found = true;
                     let tr = document.createElement('tr');
                     [0, 1, 2].forEach(index => {
                         let td = document.createElement('td');
@@ -83,6 +102,15 @@
                     tbody.appendChild(tr);
                 }
             });
+            
+            if (!found) {
+                let tr = document.createElement('tr');
+                let td = document.createElement('td');
+                td.colSpan = 3;
+                td.textContent = "لا توجد نتائج مطابقة";
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+            }
         }
     </script>
 </body>
