@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عرض بيانات CSV</title>
+    <title>بحث عن العميل في CSV</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         body {
@@ -35,8 +35,9 @@
     </style>
 </head>
 <body>
-    <h2>جدول بيانات CSV</h2>
-    <input type="file" id="fileInput" accept=".csv"> 
+    <h2>بحث عن العميل</h2>
+    <input type="text" id="searchInput" placeholder="ادخل اسم العميل...">
+    <button onclick="searchCustomer()">بحث</button>
     <table id="dataTable">
         <thead>
             <tr>
@@ -55,32 +56,39 @@
     </table>
 
     <script>
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            let file = event.target.files[0];
-            if (!file) return;
-
-            Papa.parse(file, {
-                complete: function(results) {
-                    let data = results.data;
-                    let tbody = document.querySelector('#dataTable tbody');
-                    tbody.innerHTML = '';
-                    
-                    for (let i = 1; i < data.length; i++) { // تخطي السطر الأول (العناوين)
-                        let row = document.createElement('tr');
-                        let statusClass = getStatusClass(data[i][6]);
-                        
-                        data[i].forEach((cell, index) => {
-                            let td = document.createElement('td');
-                            td.textContent = cell;
-                            if (index === 6) td.classList.add(statusClass); // تلوين حالة المعاملة
-                            row.appendChild(td);
-                        });
-                        tbody.appendChild(row);
+        const csvUrl = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/test.csv"; // استبدل باسم المستخدم والمستودع
+        let csvData = [];
+        
+        // تحميل البيانات من GitHub
+        fetch(csvUrl)
+            .then(response => response.text())
+            .then(csvText => {
+                Papa.parse(csvText, {
+                    complete: function(results) {
+                        csvData = results.data;
                     }
+                });
+            });
+        
+        function searchCustomer() {
+            let searchValue = document.getElementById('searchInput').value.trim();
+            let tbody = document.querySelector('#dataTable tbody');
+            tbody.innerHTML = '';
+            
+            csvData.forEach(row => {
+                if (row[1] && row[1].includes(searchValue)) { // البحث عن العميل في العمود الثاني
+                    let tr = document.createElement('tr');
+                    row.forEach((cell, index) => {
+                        let td = document.createElement('td');
+                        td.textContent = cell;
+                        if (index === 6) td.classList.add(getStatusClass(cell));
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
                 }
             });
-        });
-
+        }
+        
         function getStatusClass(status) {
             if (status.includes('معلق')) return 'status-pending';
             if (status.includes('موافق')) return 'status-approved';
